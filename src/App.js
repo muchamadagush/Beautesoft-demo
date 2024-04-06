@@ -7,12 +7,12 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, Button, theme, Dropdown, Space } from "antd";
-import { FunctionalComponentWithHook } from "./components/Print";
-import generatePDF, { Margin } from "react-to-pdf";
 import { useDownloadExcel } from "react-export-table-to-excel";
 import { Buffer } from "buffer";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { useReactToPrint } from "react-to-print";
+import { PrinterOutlined } from "@ant-design/icons";
 
 const { Header, Sider, Content } = Layout;
 
@@ -171,6 +171,55 @@ const App = () => {
     },
   ];
 
+  // handle print
+  const onBeforeGetContentResolve = React.useRef(null);
+
+  const [loading, setLoading] = React.useState(false);
+
+  const handleAfterPrint = React.useCallback(() => {
+    console.log("`onAfterPrint` called"); // tslint:disable-line no-console
+  }, []);
+
+  const handleBeforePrint = React.useCallback(() => {
+    console.log("`onBeforePrint` called"); // tslint:disable-line no-console
+  }, []);
+
+  const handleOnBeforeGetContent = React.useCallback(() => {
+    console.log("`onBeforeGetContent` called"); // tslint:disable-line no-console
+    setLoading(true);
+
+    return new Promise((resolve) => {
+      onBeforeGetContentResolve.current = resolve;
+
+      setTimeout(() => {
+        setLoading(false);
+        resolve();
+      }, 2000);
+    });
+  }, [setLoading]);
+
+  const reactToPrintContent = React.useCallback(() => {
+    return tableRef.current;
+  }, [tableRef.current]);
+
+  const handlePrint = useReactToPrint({
+    content: reactToPrintContent,
+    documentTitle: "AwesomeFileName",
+    onBeforeGetContent: handleOnBeforeGetContent,
+    onBeforePrint: handleBeforePrint,
+    onAfterPrint: handleAfterPrint,
+    removeAfterPrint: true,
+  });
+
+  React.useEffect(() => {
+    if (
+      data === "New, Updated Text!" &&
+      typeof onBeforeGetContentResolve.current === "function"
+    ) {
+      onBeforeGetContentResolve.current();
+    }
+  }, [onBeforeGetContentResolve.current, data]);
+
   return (
     <Layout style={{ height: "100vh" }}>
       <Sider
@@ -227,7 +276,13 @@ const App = () => {
                   <DownOutlined />
                 </Space>
               </Dropdown>
-              <FunctionalComponentWithHook data={data} tableRef={tableRef} />
+              <Button
+                onClick={handlePrint}
+                loading={loading}
+                type="ghost"
+                style={{ padding: 0 }}
+                icon={<PrinterOutlined style={{ fontSize: 32 }} />}
+              />
             </div>
             <div ref={tableRef} id="container">
               <table
@@ -489,7 +544,7 @@ const App = () => {
                   <tr>
                     <td>Remark 2:</td>
                   </tr>
-                    <td colspan={5}></td>
+                  <td colspan={5}></td>
                   <tr>
                     <td></td>
                     <td></td>
