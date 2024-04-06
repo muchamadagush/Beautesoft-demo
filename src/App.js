@@ -11,6 +11,8 @@ import { FunctionalComponentWithHook } from "./components/Print";
 import generatePDF, { Margin } from "react-to-pdf";
 import { useDownloadExcel } from "react-export-table-to-excel";
 import { Buffer } from "buffer";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const { Header, Sider, Content } = Layout;
 
@@ -81,27 +83,86 @@ const App = () => {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
+  const handleExportPdf = () => {
+    const doc = new jsPDF({
+      orientation: "portrait",
+    });
+
+    autoTable(doc, {
+      margin: { top: 10 },
+      columnStyles: { halign: "right", cellWidth: "auto" },
+      bodyStyles: { halign: "center" },
+      theme: "plain",
+      body: [
+        ["Beautesoft Salon"],
+        ["BLK 111 Toa Payoh Central"],
+        ["#01-101 S310101"],
+      ],
+    });
+
+    autoTable(doc, {
+      headStyles: {
+        halign: "center",
+        fillColor: [211, 211, 211],
+        textColor: [0, 0, 0],
+      },
+      theme: "plain",
+      head: [["", "GRN", "", ""]],
+      body: [
+        ["GRN No. :", "WGRNMCHQ110012", "Print Date :", "05/03/2024"],
+        ["PO1 Reference :", "WPOMC01110003", "Print Time :", "5:345:48 PM"],
+        ["GR1 Reference :", "WPOMC01110003", "GRN Date :", "19/08/2022"],
+        ["Staff Name :", "Support", "", ""],
+      ],
+    });
+
+    autoTable(doc, {
+      headStyles: {
+        halign: "center",
+        fillColor: [211, 211, 211],
+        textColor: [0, 0, 0],
+      },
+      columnStyles: { halign: "center" },
+      theme: "grid",
+      head: [
+        ["No", "Item Code", "Item Description", "Qty", "Unit Price", "Amount"],
+      ],
+      body: [
+        [1, "131000030000", "BWL Joint Comfort", 1, 213150, 213150],
+        [1, "131000030000", "BWL Joint Comfort", 1, 213150, 213150],
+        [2, "131000040000", "Pro-Vitamin C Cream", 1, 7788, 8300],
+        [3, "131000050000", "Lipoaminocel 500ml", 1, -11666528, -11666528],
+        ["", "", "Total :", 4, -666528, -666528],
+      ],
+    });
+
+    autoTable(doc, {
+      columnStyles: { halign: "center" },
+      theme: "plain",
+
+      body: [
+        ["Remark 1:", ""],
+        ["Remark 2:", ""],
+      ],
+    });
+
+    autoTable(doc, {
+      columnStyles: { halign: "right", cellWidth: "auto" },
+      bodyStyles: { halign: "center" },
+      theme: "plain",
+      body: [["Invoice/Stock In Report :Page 1 of 1"]],
+    });
+
+    doc.save("Export Pdf.pdf");
+  };
+
   const items = [
     {
       label: <div onClick={onDownload}>Excel</div>,
       key: "0",
     },
     {
-      label: (
-        <div
-          onClick={() =>
-            generatePDF(tableRef, {
-              filename: "Export Pdf.pdf",
-              page: {
-                margin: Margin.MEDIUM,
-                orientation: "portrait",
-              },
-            })
-          }
-        >
-          PDF
-        </div>
-      ),
+      label: <div onClick={handleExportPdf}>PDF</div>,
       key: "1",
     },
     {
@@ -237,7 +298,7 @@ const App = () => {
                     </td>
                     <td style={{ textAlign: "right" }}>Print Time :</td>
                     <td colspan={2} style={{ textAlign: "left" }}>
-                      5:345:48 PM
+                      5:45:48 PM
                     </td>
                   </tr>
                   <tr>
