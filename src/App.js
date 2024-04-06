@@ -75,7 +75,7 @@ const App = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "Export Word.docx";
+    a.download = "Export Word.doc";
     a.click();
 
     setTimeout(() => URL.revokeObjectURL(url), 1000);
@@ -88,19 +88,19 @@ const App = () => {
     },
     {
       label: (
-        <button
+        <div
           onClick={() =>
             generatePDF(tableRef, {
               filename: "Export Pdf.pdf",
               page: {
-                margin: Margin.SMALL,
+                margin: Margin.MEDIUM,
                 orientation: "portrait",
               },
             })
           }
         >
           PDF
-        </button>
+        </div>
       ),
       key: "1",
     },
@@ -421,14 +421,14 @@ const App = () => {
                       -666528
                     </td>
                   </tr>
-                  <tr><td></td></tr>
                   <tr>
                     <td>Remark 1:</td>
+                    <td colspan={5}></td>
                   </tr>
                   <tr>
                     <td>Remark 2:</td>
                   </tr>
-                  <tr><td></td></tr>
+                    <td colspan={5}></td>
                   <tr>
                     <td></td>
                     <td></td>
